@@ -1,0 +1,89 @@
+/* =========================
+   ORDERS PAGE
+========================= */
+
+.orders-page {
+  min-height: 100vh;
+  margin-left: 250px;
+  margin-top: 80px;
+  padding: 30px;
+  background: #f5f7fa;
+  font-family: "Poppins", sans-serif;
+}
+
+.orders-page h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #14532d;
+  margin-bottom: 25px;
+}
+
+/* =========================
+   TABLE CARD
+========================= */
+
+.orders-page table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.orders-page thead {
+  background: linear-gradient(135deg,#16a34a,#15803d);
+}
+
+.orders-page th {
+  color: white;
+  padding: 18px;
+  text-align: left;
+  font-size: 15px;
+}
+
+.orders-page td {
+  padding: 18px;
+  border-bottom: 1px solid #ececec;
+  font-size: 14px;
+}
+
+.orders-page tbody tr:hover {
+  background: #f8fffb;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.orders-page select {
+  width: 140px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.orders-page select option {
+  font-weight: 600;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:900px){
+
+.orders-page{
+    margin-left:0;
+    padding:20px;
+}
+
+.orders-page table{
+    display:block;
+    overflow-x:auto;
+}
+
+}
