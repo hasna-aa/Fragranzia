@@ -1,7 +1,6 @@
 // controllers/products/productController.js
 
-const { Product } = require("../../models/products/product");
-
+const Product = require("../../models/products/product");
 
 // GET ALL PRODUCTS
 

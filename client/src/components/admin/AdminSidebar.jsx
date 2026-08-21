@@ -6,8 +6,12 @@ import { MdCategory } from "react-icons/md";
 import { MdManageAccounts } from "react-icons/md";
 import { FiShoppingCart } from "react-icons/fi";
 import "../admin/adminside.css";
+import { useNavigate } from "react-router-dom";
 
 const AdminSidebar = () => {
+
+  const navigate = useNavigate();
+  
   return (
     <div className="dashtar">
 
@@ -23,7 +27,7 @@ const AdminSidebar = () => {
         </div>
 
         <div className="dashtar-list1">
-          <NavLink to="/adminpage">
+          <NavLink to="/admin/products">
             <AiOutlineProduct />
             Products
           </NavLink>
@@ -52,9 +56,20 @@ const AdminSidebar = () => {
 
       </div>
 
-      <div className="logout-btn-admin">
-        <button>Log Out</button>
-      </div>
+   <div className="logout-btn-admin">
+  <button
+    onClick={() => {
+      console.log("LOGOUT CLICKED");
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      navigate("/login");
+    }}
+  >
+    Log Out
+  </button>
+</div>
 
     </div>
   )

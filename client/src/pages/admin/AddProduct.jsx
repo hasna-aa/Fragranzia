@@ -9,9 +9,6 @@ import CategoryService from "../../services/user-api-service/CategoryService";
 // const API_URL = "http://localhost:5000/api/products";
 
 function AddProduct() {
-
-
-
     
     const {postProducts} = UserService ();
     const { getCategories } = CategoryService();
@@ -196,20 +193,6 @@ function AddProduct() {
 
           </div>
 
-          <div className="form-group">
-            <label>Offer</label>
-
-            <select
-              name="offer"
-              value={productData.offer}
-              onChange={onHandleChange}
-            >
-              <option value="">Select Offers</option>
-              <option value="10%">10%</option>
-              <option value="20%">20%</option>
-            </select>
-
-          </div>
 
         </div>
 

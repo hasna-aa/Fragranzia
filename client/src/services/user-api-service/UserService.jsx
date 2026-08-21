@@ -29,6 +29,21 @@ const UserService = () => {
     return res.data;
   };
 
+  const postProducts = async (formData) => {
+  const res = await axios.post(
+    `${BASE_URL}/api/products`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return res.data;
+};
+
   const updateProduct = async (id, formData) => {
     const res = await axios.put(
       `${BASE_URL}/api/products/${id}`,
@@ -140,22 +155,41 @@ const UserService = () => {
     return `${BASE_URL}/uploads/${cleanPath}`;
   };
 
+  const getDashboardStats = async()=>{
+
+    const res = await axios.get(
+        `${BASE_URL}/api/dashboard`
+    );
+
+    return res.data;
+
+
+};
+
+const getCategories = async () => {
+  const res = await axios.get(`${BASE_URL}/api/categories`);
+  return res.data;
+};
   // ================= RETURN =================
 
   return {
     // Products
-    getProducts,
-    getUserProducts,
-    getProductById,
-    updateProduct,
-    deleteProducts,
-    toggleProductBlock,
-    importProducts,
+ // Products
+getProducts,
+getUserProducts,
+getProductById,
+postProducts,
+updateProduct,
+deleteProducts,
+toggleProductBlock,
+importProducts,
+getDashboardStats,
 
     // Users
     getAllUsers,
     getProfile,
     updateProfile,
+    getCategories,
 
     // Orders
     getAllOrders,

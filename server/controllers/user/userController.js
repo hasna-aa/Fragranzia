@@ -32,13 +32,14 @@ const registerUser = async (req, res) => {
     res.status(201).json({
       message: "Registered successfully",
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin || false,
-        createdAt: user.createdAt,
-      },
+user: {
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  status: user.status,
+  createdAt: user.createdAt,
+},
     });
 
   } catch (error) {
@@ -78,13 +79,14 @@ const loginUser = async (req, res) => {
     res.json({
       message: "Login successful",
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin || false,
-        createdAt: user.createdAt,
-      },
+     user: {
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  status: user.status,
+  createdAt: user.createdAt,
+},
     });
 
   } catch (error) {

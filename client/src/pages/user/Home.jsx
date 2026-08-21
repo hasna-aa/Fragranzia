@@ -21,7 +21,9 @@ const Home = () => {
 
 const {
   getUserProducts,
+    getCategories,
   getImageUrl,
+  
 } = UserService();
 const { addToCart} = CartService();
 
@@ -33,22 +35,35 @@ const {
 
     const  [Products,setProducts] = useState([])
     const [wishlist, setWishlist] = useState([]);
+    const [categories, setCategories] = useState([]);
 
 
 useEffect(() => {
   const fetchProducts = async () => {
     try {
-const res = await getProducts();
+      const res = await getUserProducts();
       setProducts(res);
     } catch (error) {
-      console.log(error);
+      console.log("Products error:", error);
     }
   };
 
   fetchProducts();
-  fetchWishlist(); 
+  fetchWishlist();
+  fetchCategories();
 }, []);
 
+const fetchCategories = async () => {
+  try {
+    const res = await getCategories();
+
+    setCategories(
+      res.filter((item) => !item.isBlocked)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
 const handleWishlist = async (productId) => {
@@ -288,42 +303,7 @@ const isLoggedIn = !!token;
        <div className='addbox2-home'> <p>Limited Editions</p></div>
         <div className='addbox3-home'><p>Best Sellers</p></div>
     </div>
-      <div className="explore-home">
-                <div className="explore-heading">
-                    <h2>Explore Categories</h2>
-                </div>
-                <div className='exploreitem-home'>
-      {Products.map((item) => (
-        <div key={item._id} className='explore-item-home'>
-      <img
-  src={getImageUrl(item.images?.[0])}
-  alt={item.title}
-/>
-          <h5>{item.title}</h5>
-        </div>
-      ))}
-    </div>
-    </div>
-        <div className="productrow-home">
-                <div className="product-heading">
-                    <h2>Offer Zone</h2>
-                </div>
-                <div className='prdoducts-home'>
-      {Products.map((item) => (
-        <div key={item._id} className='product-item-home'>
-     <img
-  src={getImageUrl(item.images?.[0])}
-  alt={item.title}
-/>
-          <h5>{item.title}</h5>
-          <p>₹ {item.price}</p>
-          <button onClick={() => handleAddCart(item._id)}>
-            Add to Cart
-          </button>
-        </div>
-      ))}
-    </div>
-    </div>
+{/*  */}
     <div className="describe-home">
         <div className="describetext-home">
             <h2>Elegance in Every Bottle</h2>

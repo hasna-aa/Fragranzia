@@ -1,75 +1,80 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Categories.css";
-import { FaPen } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-// import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import CategoryService from "../../services/user-api-service/CategoryService";
+
 function Categories() {
+  const [allCategories, setAllCategories] = useState([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-const [allCategories, setAllCategories] = useState([]);
-const [search, setSearch] = useState("");
-const [statusFilter, setStatusFilter] = useState("all");
+  const {
+    getCategories,
+    toggleCategoryBlock,
+    deleteCategory,
+  } = CategoryService();
 
-const { getCategories, toggleCategoryBlock,deleteCategory } = CategoryService();
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const fetchCategories = async () => {
-  try {
-    const data = await getCategories();
-    setAllCategories(data);
-  } catch (error) {
-    console.log(error);
-  }
-};
-useEffect(() => {
+  // ================= FETCH CATEGORIES =================
 
-  fetchCategories();
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategories();
+      setAllCategories(data);
+    } catch (error) {
+      console.log("Category fetch error:", error);
+    }
+  };
 
-}, []);
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
-const filteredCategories = allCategories.filter((category)=>{
+  // ================= FILTER =================
 
-    const matchesSearch =
-        category.name
-        .toLowerCase()
-        .includes(search.toLowerCase());
+  const filteredCategories = allCategories.filter((category) => {
+    const matchesSearch = category.name
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
 
     const matchesStatus =
-        statusFilter === "all"
+      statusFilter === "all"
         ? true
         : statusFilter === "blocked"
         ? category.isBlocked
         : !category.isBlocked;
 
     return matchesSearch && matchesStatus;
+  });
 
-});
+  // ================= BLOCK / UNBLOCK =================
 
-const toggleBlock = async (id) => {
-  try {
-    await toggleCategoryBlock(id);
-    fetchCategories();
-  } catch (error) {
-    console.log(error);
-  }
-};
-const handleDelete = async (id) => {
-  try {
-    await deleteCategory(id);
-    fetchCategories(); // refresh list
-  } catch (error) {
-    console.log(error);
-  }
-};
+  const toggleBlock = async (id) => {
+    try {
+      await toggleCategoryBlock(id);
+      fetchCategories();
+    } catch (error) {
+      console.log("Toggle category error:", error);
+    }
+  };
+
+  // ================= DELETE =================
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteCategory(id);
+      fetchCategories();
+    } catch (error) {
+      console.log("Delete category error:", error);
+    }
+  };
 
   return (
     <div className="category-page">
-
       <div className="category-card">
 
-        {/* Top Buttons */}
+        {/* ================= TOP BUTTONS ================= */}
 
         <div className="category-top">
 
@@ -78,36 +83,37 @@ const handleDelete = async (id) => {
             <button>Import</button>
           </div>
 
-         <Link to="/addcategory"><button className="right-btn">
-            + Add Category
-          </button></Link> 
+          <Link to="/admin/add-category">
+            <button className="right-btn">
+              + Add Category
+            </button>
+          </Link>
 
         </div>
 
-        {/* Filters */}
+        {/* ================= FILTERS ================= */}
 
         <div className="category-filters">
 
-         <input
-    type="text"
-    placeholder="Search Categories..."
-    value={search}
-    onChange={(e)=>setSearch(e.target.value)}
-/>
+          <input
+            type="text"
+            placeholder="Search Categories..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
           <select
-    value={statusFilter}
-    onChange={(e)=>setStatusFilter(e.target.value)}
->
-    <option value="all">All</option>
-    <option value="active">Active</option>
-    <option value="blocked">Blocked</option>
-</select>
-
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+          </select>
 
         </div>
 
-        {/* Table */}
+        {/* ================= TABLE ================= */}
 
         <div className="table-wrapper">
 
@@ -124,75 +130,83 @@ const handleDelete = async (id) => {
 
             <tbody>
 
-  {
-    filteredCategories.length > 0 ? (
+              {filteredCategories.length > 0 ? (
 
-      filteredCategories.map((category) => (
+                filteredCategories.map((category) => (
 
-        <tr key={category._id}>
+                  <tr key={category._id}>
 
-          <td>{category.name}</td>
+                    <td>{category.name}</td>
 
-          <td>{category.description}</td>
+                    <td>{category.description}</td>
 
-          <td className="special-btn">
+                    <td className="special-btn">
 
- <button
-  className="edit-btn-category"
-  onClick={() => navigate(`/editcategory/${category._id}`)}
->
-  Edit
-</button>
-           <button
-  className="delete-btn-category"
-  onClick={() => handleDelete(category._id)}
->
-  Delete
-</button>
-          </td>
+                      <button
+                        className="edit-btn-category"
+                        onClick={() =>
+                          navigate(`/editcategory/${category._id}`)
+                        }
+                      >
+                        Edit
+                      </button>
 
-          <td>
-  <button
-  className={category.isBlocked ? "unblock-btn" : "block-btn"}
-  onClick={() => toggleBlock(category._id)}
->
-  {category.isBlocked ? "Unblock" : "Block"}
-</button>
-</td>
+                      <button
+                        className="delete-btn-category"
+                        onClick={() =>
+                          handleDelete(category._id)
+                        }
+                      >
+                        Delete
+                      </button>
 
-        </tr>
+                    </td>
 
-      ))
+                    <td>
 
-    ) : (
+                      <button
+                        className={
+                          category.isBlocked
+                            ? "unblock-btn"
+                            : "block-btn"
+                        }
+                        onClick={() =>
+                          toggleBlock(category._id)
+                        }
+                      >
+                        {category.isBlocked
+                          ? "Unblock"
+                          : "Block"}
+                      </button>
 
-      <tr>
+                    </td>
 
-        <td
-          colSpan="5"
-          className="empty-text"
-        >
+                  </tr>
 
-          No Categories Available
+                ))
 
-        </td>
+              ) : (
 
-      </tr>
+                <tr>
 
-    )
-  }
+                  <td
+                    colSpan="4"
+                    className="empty-text"
+                  >
+                    No Categories Available
+                  </td>
 
-</tbody>
+                </tr>
 
-           
+              )}
+
+            </tbody>
+
           </table>
 
         </div>
 
-        
-
       </div>
-
     </div>
   );
 }

@@ -85,16 +85,18 @@ function Order() {
   const subtotal = useMemo(() => {
     return cartItems.reduce(
       (total, item) =>
-        total + (item.product?.price || 0) * item.quantity,
+        total + (item.product?.salePrice || 0) * item.quantity,
       0
     );
   }, [cartItems]);
+
+
   const discount = useMemo(() => {
     return cartItems.reduce((total, item) => {
-      const price = item.product?.price || 0;
-      const oldPrice = item.product?.originalPrice || price;
+      const originalPrice = item.product?.price || 0;
+      const salePrice = item.product?.salePrice || originalPrice;
 
-      return total + (oldPrice - price) * item.quantity;
+      return total + (originalPrice - salePrice) * item.quantity;
     }, 0);
   }, [cartItems]);
 
@@ -102,96 +104,96 @@ function Order() {
   const deliveryCharge = subtotal > 500 ? 0 : 1;
   const totalAmount = subtotal + deliveryCharge;
 
-const handlePlaceOrder = async () => {
-  if (!selectedAddress) {
-    toast.warning("Please select a delivery address");
-    return;
-  }
+  const handlePlaceOrder = async () => {
+    if (!selectedAddress) {
+      toast.warning("Please select a delivery address");
+      return;
+    }
 
-  try {
+    try {
 
-// ================= COD =================
-if (paymentMethod === "cod") {
+      // ================= COD =================
+      if (paymentMethod === "cod") {
 
-const orderData = {
-  addressId: selectedAddress._id,
-  paymentMethod: "cod",
-  items: cartItems.map((item) => ({
-    product: item.product._id,
-    quantity: item.quantity,
-  })),
-  subtotal,
-  discount,
-  deliveryCharge,
-  totalAmount,
-};
-
-  await createOrder(orderData);
-
-  toast.success("Order placed successfully!");
-
-  // profile
-  
- navigate("/profile");
-  return;
-}
-    // ============== ONLINE PAYMENT ==============
-    const order = await createRazorpayOrder(totalAmount);
-
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: order.currency,
-      name: "Fragranzia",
-      description: "Order Payment",
-      order_id: order.id,
-
-      handler: async function (response) {
-
-const orderData = {
-  addressId: selectedAddress._id,
-  paymentMethod: "razorpay",
-  paymentId: response.razorpay_payment_id,
- items: cartItems.map((item) => ({
-  product: item.product._id,
-  quantity: item.quantity,
-})),
-  subtotal,
-  discount,
-  deliveryCharge,
-  totalAmount,
-};
+        const orderData = {
+          addressId: selectedAddress._id,
+          paymentMethod: "cod",
+          items: cartItems.map((item) => ({
+            product: item.product._id,
+            quantity: item.quantity,
+          })),
+          subtotal,
+          discount,
+          deliveryCharge,
+          totalAmount,
+        };
 
         await createOrder(orderData);
 
-        toast.success("Payment successful & order placed!");
+        toast.success("Order placed successfully!");
+
+        // profile
 
         navigate("/profile");
-      },
+        return;
+      }
+      // ============== ONLINE PAYMENT ==============
+      const order = await createRazorpayOrder(totalAmount);
 
-      prefill: {
-        name: selectedAddress?.fullName,
-        contact: selectedAddress?.phone,
-      },
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Fragranzia",
+        description: "Order Payment",
+        order_id: order.id,
 
-      theme: {
-        color: "#0f172a",
-      },
-    };
+        handler: async function (response) {
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+          const orderData = {
+            addressId: selectedAddress._id,
+            paymentMethod: "razorpay",
+            paymentId: response.razorpay_payment_id,
+            items: cartItems.map((item) => ({
+              product: item.product._id,
+              quantity: item.quantity,
+            })),
+            subtotal,
+            discount,
+            deliveryCharge,
+            totalAmount,
+          };
 
-  } catch (err) {
+          await createOrder(orderData);
 
-    console.log(err);
+          toast.success("Payment successful & order placed!");
 
-    // COD aanel error kaanikanda
-    if (paymentMethod !== "cod") {
-      toast.error("Payment failed. Please try again.");
+          navigate("/profile");
+        },
+
+        prefill: {
+          name: selectedAddress?.fullName,
+          contact: selectedAddress?.phone,
+        },
+
+        theme: {
+          color: "#0f172a",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (err) {
+
+      console.log(err);
+
+      // COD aanel error kaanikanda
+      if (paymentMethod !== "cod") {
+        toast.error("Payment failed. Please try again.");
+      }
     }
-  }
-};
+  };
 
   if (loading) return <div className="order-loading">Loading...</div>;
 
@@ -229,12 +231,12 @@ const orderData = {
 
                 <div className="order-price">
                   <h2>
-                    ₹{(item.product?.price || 0) * item.quantity}
+                    ₹{(item.product?.salePrice || 0) * item.quantity}
                   </h2>
 
-                  {item.product?.originalPrice && (
+                  {item.product?.price && (
                     <del>
-                      ₹{item.product.originalPrice * item.quantity}
+                      ₹{item.product.price * item.quantity}
                     </del>
                   )}
                 </div>

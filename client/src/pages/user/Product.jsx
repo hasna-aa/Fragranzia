@@ -20,11 +20,14 @@ const {
 
   const navigate = useNavigate();
 
-  const [params] = useSearchParams();
-  const urlSearch = params.get("search") || "";
+const [searchParams] = useSearchParams();
 
+const urlSearch = searchParams.get("search") || "";
+const selectedCategory = searchParams.get("category") || "";
   const [products, setProducts] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  
+  
 
   // LOAD PRODUCTS
   
@@ -62,22 +65,28 @@ const fetchWishlist = async () => {
   }, []);
 
   // SEARCH VALUE (URL + fallback)
-  const searchValue = urlSearch || "";
+const searchValue = urlSearch;
 
-  // FILTER PRODUCTS
-  const filteredProducts = products.filter((item) =>
-    item.title.toLowerCase().includes(searchValue.toLowerCase())
-  );
+const filteredProducts = products.filter((item) => {
+  const matchesSearch = item.title
+    .toLowerCase()
+    .includes(searchValue.toLowerCase());
+
+  const matchesCategory =
+    !selectedCategory || item.category === selectedCategory;
+
+  return matchesSearch && matchesCategory;
+});
 
   // SORT LOW TO HIGH
   const handleLowToHigh = () => {
-    const sorted = [...products].sort((a, b) => a.price - b.price);
+    const sorted = [...products].sort((a, b) => a.salePrice - b.salePrice);
     setProducts(sorted);
   };
 
   // SORT HIGH TO LOW
   const handleHighToLow = () => {
-    const sorted = [...products].sort((a, b) => b.price - a.price);
+    const sorted = [...products].sort((a, b) => b.salePrice - a.salePrice);
     setProducts(sorted);
   };
 
@@ -143,12 +152,22 @@ const handleWishlist = async (productId) => {
       </div>
 
       {/* SEARCH INFO */}
-      {searchValue && (
-        <div style={{ padding: "10px" }}>
-          Searching for: <b>{searchValue}</b>
-        </div>
-      )}
+  {(searchValue || selectedCategory) && (
+  <div style={{ padding: "10px" }}>
+    {searchValue && (
+      <>
+        Searching for: <b>{searchValue}</b>
+      </>
+    )}
 
+    {selectedCategory && (
+      <>
+        {" "}
+        | Category: <b>{selectedCategory}</b>
+      </>
+    )}
+  </div>
+)}
       {/* FILTER */}
       <div className="filter-product">
         <button onClick={handleLowToHigh}>Low → High</button>
@@ -191,8 +210,8 @@ const handleWishlist = async (productId) => {
                 alt=""
               />
 
-              <h5>{item.title}</h5>
-              <p>₹ {item.price}</p>
+            <h5>{item.title}</h5>
+            <p>₹ {item.salePrice || item.price}</p>
 
               <button
                 onClick={(e) => {

@@ -1,184 +1,251 @@
-/* =========================
-   DASHBOARD - PROJECT THEME
-========================= */
+/* ================================
+   ADMIN DASHBOARD
+================================ */
+
 
 .dashboard-container {
+
   min-height: 100vh;
+  background: #f5f7fb;
   padding: 30px;
-  background: #f5f7fa; /* same as project */
   margin-left: 250px;
-  margin-top: 80px;
+  margin-top: 70px;
+
 }
 
-/* Header */
-.dashboard-container h1 {
-  font-size: 2rem;
+
+
+.dashboard-heading {
+
+  font-size: 32px;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 25px;
-}
-
-/* =========================
-   ANALYTICS GRID
-========================= */
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 22px;
   margin-bottom: 30px;
+  color: #222;
+
 }
 
-/* Card Base */
-.dashboard-card {
-  position: relative;
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 28px;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  border: 1px solid #e5e7eb;
-  transition: all 0.3s ease;
+
+
+/* ================================
+   STAT CARDS
+================================ */
+
+
+.dashboard-cards {
+
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 25px;
+
 }
+
+
+
+.dashboard-card {
+
+  background: white;
+  padding: 25px;
+  border-radius: 18px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  box-shadow:0 5px 20px rgba(0,0,0,0.08);
+
+  transition:0.3s;
+
+}
+
+
 
 .dashboard-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+
+  transform:translateY(-5px);
+
 }
 
-/* Soft circle */
-.dashboard-card::before {
-  content: "";
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  top: -40px;
-  right: -40px;
-  background: rgba(34, 197, 94, 0.08);
+
+
+.dashboard-card h4 {
+
+  margin:0;
+  font-size:16px;
+  color:#777;
+
 }
 
-/* Titles */
-.dashboard-card h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #6b7280;
-  margin-bottom: 14px;
+
+
+.dashboard-card h2 {
+
+  margin:10px 0;
+  font-size:32px;
+  color:#222;
+
 }
 
-/* Numbers */
+
+
 .dashboard-card p {
-  font-size: 2.6rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
+
+  margin:0;
+  color:#999;
+
 }
 
-/* Accent borders matching project theme */
-.dashboard-card:nth-child(1) {
-  border-left: 6px solid #16a34a; /* green */
+
+
+
+
+/* ================================
+   ICONS
+================================ */
+
+
+.icon {
+
+  width:65px;
+  height:65px;
+
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:28px;
+
+  color:white;
+
 }
 
-.dashboard-card:nth-child(2) {
-  border-left: 6px solid #22c55e;
+
+
+.green {
+
+  background:#4CAF50;
+
 }
 
-.dashboard-card:nth-child(3) {
-  border-left: 6px solid #ef4444;
+
+.orange {
+
+  background:#FF9800;
+
 }
 
-.dashboard-card:nth-child(4) {
-  border-left: 6px solid #f59e0b;
+
+.blue {
+
+  background:#2196F3;
+
 }
 
-/* =========================
-   ANALYTICS ROW
-========================= */
 
-.analytics-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 18px;
-  margin-bottom: 25px;
+.purple {
+
+  background:#9C27B0;
+
 }
 
-.analytics-box {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 20px;
-  text-align: center;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+
+
+
+
+
+
+/* ================================
+   CHART SECTION
+================================ */
+
+
+
+.dashboard-bottom {
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:25px;
+
+  margin-top:30px;
+
 }
 
-.analytics-box span {
-  display: block;
-  font-size: 0.9rem;
-  color: #6b7280;
-  margin-bottom: 8px;
-  font-weight: 500;
+
+
+.chart-card {
+
+  background:white;
+
+  padding:25px;
+
+  border-radius:18px;
+
+  box-shadow:0 5px 20px rgba(0,0,0,0.08);
+
 }
 
-.analytics-box strong {
-  font-size: 1.5rem;
-  color: #16a34a;
-  font-weight: 700;
+
+
+.chart-card h2 {
+
+  margin-bottom:20px;
+
+  font-size:22px;
+
+  color:#222;
+
 }
 
-/* =========================
-   STORE STATUS
-========================= */
 
-.dashboard-info {
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 28px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-}
 
-.dashboard-info h3 {
-  font-size: 1.4rem;
-  color: #16a34a;
-  margin-bottom: 14px;
-}
 
-.dashboard-info p {
-  color: #4b5563;
-  line-height: 1.8;
-  font-size: 1rem;
-}
 
-/* Highlight API text */
-.dashboard-info strong {
-  color: #111827;
-  background: #dcfce7;
-  padding: 2px 8px;
-  border-radius: 8px;
-}
-
-/* =========================
+/* ================================
    RESPONSIVE
-========================= */
+================================ */
 
-@media (max-width: 1024px) {
-  .dashboard-container {
-    margin-left: 0;
-    padding: 20px;
-  }
+
+@media(max-width:1200px){
+
+
+.dashboard-cards{
+
+grid-template-columns:repeat(2,1fr);
+
 }
 
-@media (max-width: 768px) {
-  .dashboard-container h1 {
-    font-size: 1.6rem;
-  }
 
-  .dashboard-card p {
-    font-size: 2rem;
-  }
+}
 
-  .dashboard-card,
-  .dashboard-info {
-    padding: 22px;
-  }
+
+
+@media(max-width:768px){
+
+
+.dashboard-container{
+
+margin-left:0;
+padding:20px;
+
+}
+
+
+.dashboard-cards{
+
+grid-template-columns:1fr;
+
+}
+
+
+
+.dashboard-bottom{
+
+grid-template-columns:1fr;
+
+}
+
+
 }

@@ -13,6 +13,8 @@ const cartRoutes = require("./routes/user/cartRoutes");
 const userRoutes = require("./routes/user/userRoutes");
 const addressRoutes = require("./routes/user/addressRoutes");
 const orderRoutes = require("./routes/orders/orderRoutes");
+const dashboardRoutes = require("./routes/dashbord/dashboardRoutes");
+
 
 // DB
 const connectDb = require("./config/db");
@@ -57,6 +59,8 @@ app.use("/api/orders", orderRoutes);
 
 app.use("/api/payment", paymentRoutes);
 
+app.use("/api/dashboard", dashboardRoutes);
+
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {
   res.send("Fragranzia Server Running");
@@ -68,3 +72,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+

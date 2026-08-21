@@ -22,11 +22,15 @@ const {
     fetchCart();
   }, []);
 
-
 const fetchCart = async () => {
   try {
     const cart = await getCartItems();
-    setProducts(cart || []);
+
+    const validProducts = (cart || []).filter(
+      (item) => item.product
+    );
+
+    setProducts(validProducts);
   } catch (error) {
     console.log(error);
   }
@@ -75,84 +79,105 @@ const totalAmount = Products.reduce((total, item) => {
         <div className="cart-left">
           <h2 className="cart-title">Cart</h2>
 
-          {Products.length > 0 ? (
-            Products.map((item) => (
-              <div
-                className="cart-card"
-                key={item.product._id}
-              >
-                <div className="cart-image">
-                  <img
-                    src={`http://localhost:5000/uploads/${item.product.images[0]}`}
-                    alt={item.product.title}
-                  />
-                </div>
+         {Products.length > 0 ? (
+  Products.map((item) => {
 
-                <div className="cart-details">
+    // Product deleted / unavailable
+    if (!item.product) {
+      return null;
+    }
 
-                  <h3>{item.product.title}</h3>
+    return (
+      <div
+        className="cart-card"
+        key={item.product._id}
+      >
 
-                  <div className="quantity-box">
-                    <button
-                      className="btn"
-                      onClick={() =>
-                        dec(item.product._id)
-                      }
-                    >
-                      -
-                    </button>
+        <div className="cart-image">
+          <img
+            src={
+              item.product.images?.[0]
+                ? `http://localhost:5000/uploads/${item.product.images[0]}`
+                : "/no-image.png"
+            }
+            alt={item.product.title || "Product"}
+            onError={(e) => {
+              e.currentTarget.src = "/no-image.png";
+            }}
+          />
+        </div>
 
-                    <div className="count">
-                      {item.quantity}
-                    </div>
+        <div className="cart-details">
 
-                    <button
-                      className="btn"
-                      onClick={() =>
-                        inc(item.product._id)
-                      }
-                    >
-                      +
-                    </button>
-                  </div>
+          <h3>
+            {item.product.title || "Product"}
+          </h3>
 
-                  <div className="price-section">
-                    <h2>
-                      ₹ {item.product.salePrice}
-                    </h2>
+          <div className="quantity-box">
 
-                    <p className="old-price">
-                      ₹ {item.product.price}
-                    </p>
+            <button
+              className="btn"
+              onClick={() =>
+                dec(item.product._id)
+              }
+            >
+              -
+            </button>
 
-                    <span className="offer-text">
-                      {item.product.offer} off
-                    </span>
-                  </div>
+            <div className="count">
+              {item.quantity}
+            </div>
 
-                  <div className="cart-btns">
-                    <button
-                      className="delete-btn"
-                      onClick={() =>
-                        deleteProduct(
-                          item.product._id
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
+            <button
+              className="btn"
+              onClick={() =>
+                inc(item.product._id)
+              }
+            >
+              +
+            </button>
 
-                   
-                  </div>
+          </div>
 
-                </div>
-              </div>
-            ))
-          ) : (
-            <h2 className="empty-cart">
-              Cart Is Empty
+          <div className="price-section">
+
+            <h2>
+              ₹ {item.product.salePrice || item.product.price}
             </h2>
-          )}
+
+            <p className="old-price">
+              ₹ {item.product.price}
+            </p>
+
+            <span className="offer-text">
+              {item.product.offer || 0}% off
+            </span>
+
+          </div>
+
+          <div className="cart-btns">
+
+            <button
+              className="delete-btn"
+              onClick={() =>
+                deleteProduct(item.product._id)
+              }
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+    );
+  })
+) : (
+  <h2 className="empty-cart">
+    Cart Is Empty
+  </h2>
+)}
         </div>
 
         <div className="cart-right">

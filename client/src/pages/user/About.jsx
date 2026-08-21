@@ -34,7 +34,7 @@ function About() {
 
         <div className="about-image">
           <img
-            src="https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=1000&q=80"
+            src="addper.jpg"
             alt="Perfume Collection"
           />
         </div>

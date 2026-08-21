@@ -2,12 +2,15 @@ const mongoose = require("mongoose");
 
 const connectDb = async () => {
   try {
-    const connection = await mongoose.connect("mongodb://localhost:27017/Fragranzia");
-    console.log("Database Connected: " + connection.connection.name);
-  } catch (error) {
-    console.log(error);
-  }
+    const connection = await mongoose.connect(process.env.MONGO_URI);
 
+    console.log(
+      "Database Connected:",
+      connection.connection.name
+    );
+  } catch (error) {
+    console.log("Database Connection Error:", error.message);
+  }
 };
 
 module.exports = connectDb;

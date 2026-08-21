@@ -64,7 +64,7 @@ function App() {
       <Route element={<AdminProtectRouter />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/products" element={<Products />} />
+          <Route path="/admin/products" element={<Products />} />
           <Route path="/admin/add-product" element={<AddProduct />} />
           <Route path="/editproduct/:id" element={<EditProduct />} />
           <Route path="/admin/categories" element={<Categories />} />
