@@ -1,4 +1,13 @@
 {
+  "name": "fragranzia",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm run dev --prefix client",
+    "client": "npm run dev --prefix client",
+    "server": "npm start --prefix server",
+    "start": "npm start --prefix server",
+    "build": "npm run build --prefix client"
+  },
   "dependencies": {
     "react-toastify": "^11.1.0"
   }

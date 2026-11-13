@@ -13,8 +13,8 @@ import { useNavigate } from "react-router-dom";
 
 
 const Navbar = () => {
-
-     const[cartItem,setcartItem] = useState([])
+    const navigate = useNavigate();
+    const [cartItem, setCartItem] = useState([]);
         const [cartOpen, setCartOpen] = useState(false)
         const [showMsg, setShowMsg] = useState(false);
         const [search, setSearch] = useState("");

@@ -7,44 +7,82 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "Please fill in all required fields",
+      });
+    }
+
+    const trimmedName = name.trim();
+    if (trimmedName.length < 3) {
+      return res.status(400).json({
+        message: "Name must be at least 3 characters long",
+      });
+    }
+
+    const trimmedEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      return res.status(400).json({
+        message: "Please enter a valid email address",
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    const escapedEmail = trimmedEmail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const existingUser = await User.findOne({
+      email: { $regex: new RegExp(`^${escapedEmail}$`, "i") },
+    });
 
     if (existingUser) {
       return res.status(400).json({
-        message: "User already exists",
+        message: "An account with this email already exists",
       });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name,
-      email,
+      name: trimmedName,
+      email: trimmedEmail,
       password: hashedPassword,
     });
 
+    const jwtSecret = process.env.JWT_SECRET || "fragranzia_secret_key";
     const token = jwt.sign(
-      { _id: user._id },
-      process.env.JWT_SECRET,
+      { _id: user._id, role: user.role },
+      jwtSecret,
       { expiresIn: "7d" }
     );
 
     res.status(201).json({
       message: "Registered successfully",
       token,
-user: {
-  _id: user._id,
-  name: user.name,
-  email: user.email,
-  role: user.role,
-  status: user.status,
-  createdAt: user.createdAt,
-},
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role || "user",
+        isAdmin: user.role === "admin" || !!user.isAdmin,
+        status: user.status,
+        createdAt: user.createdAt,
+      },
     });
 
   } catch (error) {
+    console.error("Register error:", error);
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: "An account with this email already exists",
+      });
+    }
     res.status(500).json({
-      message: error.message,
+      message: error.message || "Registration failed",
     });
   }
 };
@@ -54,11 +92,27 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Please enter both email and password",
+      });
+    }
+
+    const trimmedEmail = email.trim();
+    const escapedEmail = trimmedEmail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${escapedEmail}$`, "i") },
+    });
 
     if (!user) {
       return res.status(400).json({
-        message: "User not found",
+        message: "Invalid email or password",
+      });
+    }
+
+    if (user.status === false) {
+      return res.status(403).json({
+        message: "Your account has been deactivated. Please contact support.",
       });
     }
 
@@ -66,32 +120,35 @@ const loginUser = async (req, res) => {
 
     if (!isMatch) {
       return res.status(400).json({
-        message: "Invalid credentials",
+        message: "Invalid email or password",
       });
     }
 
+    const jwtSecret = process.env.JWT_SECRET || "fragranzia_secret_key";
     const token = jwt.sign(
-      { _id: user._id },
-      process.env.JWT_SECRET,
+      { _id: user._id, role: user.role },
+      jwtSecret,
       { expiresIn: "7d" }
     );
 
     res.json({
       message: "Login successful",
       token,
-     user: {
-  _id: user._id,
-  name: user.name,
-  email: user.email,
-  role: user.role,
-  status: user.status,
-  createdAt: user.createdAt,
-},
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role || "user",
+        isAdmin: user.role === "admin" || !!user.isAdmin,
+        status: user.status,
+        createdAt: user.createdAt,
+      },
     });
 
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({
-      message: error.message,
+      message: error.message || "Login failed",
     });
   }
 };

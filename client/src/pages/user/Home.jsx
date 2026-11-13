@@ -3,9 +3,9 @@ import { useState,useEffect } from 'react'
 
 import { Link } from "react-router-dom";
 import "../../style/home.css";
-import { Swiper, SwiperSlide } from "swiper/react";
 
-import "swiper/css";
+
+
 import { Autoplay } from "swiper/modules";
 import { CiBellOn } from "react-icons/ci";
 import { TbTruckDelivery } from "react-icons/tb"; 
@@ -15,6 +15,11 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 import UserService from "../../services/user-api-service/UserService";
 import CartService from "../../services/user-api-service/CartService";
 import WishlistService from "../../services/user-api-service/WishlistService";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/navigation";
 
 
 const Home = () => {
@@ -244,55 +249,66 @@ const isLoggedIn = !!token;
                 <div className="product-heading">
                     <h2>Featured Collections</h2>
                 </div>
-                <div className='prdoducts-home'>
-      {Products.map((item) => (
-        <div
-  key={item._id}
-  className='product-item-home'
+                
+                <Swiper
+  slidesPerView={4}
+  spaceBetween={30}
+  navigation={true}
+  modules={[Navigation]}
+  className="featured-swiper"
+  breakpoints={{
+    0: {
+      slidesPerView: 1,
+    },
+    600: {
+      slidesPerView: 2,
+    },
+    900: {
+      slidesPerView: 3,
+    },
+    1200: {
+      slidesPerView: 4,
+    },
+  }}
 >
 
-<div className="wishlist-icon">
-
-  {
-    isInWishlist(item._id) ? (
-
-     <FaHeart 
-  className='filled-heart'
-  onClick={() => handleWishlist(item._id)}
-  color='red'
-/>
-
-    ) : (
-
-    <FaRegHeart
-  className='empty-heart'
-  onClick={() => handleWishlist(item._id)}
-  color='black'
-/>
-
-    )
-  }
-
-</div>
-
- <img
-  src={getImageUrl(item.images?.[0])}
-  alt={item.title}
-/>
-
-  <h5>{item.title}</h5>
-
-  <p>₹ {item.salePrice}</p>
+  {Products.map((product) => (
+    <SwiperSlide key={product._id}>
+      
+     <div className="product-card">
 
   <button
- onClick={() => handleAddCart(item._id)}
->
- Add to Cart
-</button>
+    className="wishlist-btn"
+    onClick={() => handleWishlist(product._id)}
+  >
+    {isInWishlist(product._id) ? (
+      <FaHeart className="filled-heart" />
+    ) : (
+      <FaRegHeart className="empty-heart" />
+    )}
+  </button>
+
+  <img
+    src={getImageUrl(product.images?.[0])}
+    alt={product.title}
+  />
+
+  <h3>{product.title}</h3>
+
+  <p>₹ {product.salePrice}</p>
+
+  <button
+    className="cart-btn"
+    onClick={() => handleAddCart(product._id)}
+  >
+    Add to Cart
+  </button>
 
 </div>
-      ))}
-    </div>
+
+    </SwiperSlide>
+  ))}
+</Swiper>
     </div>
 
     <div className="quote">

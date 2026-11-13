@@ -40,24 +40,32 @@ function Order() {
   }, []);
 
   const loadOrderData = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const cart = await getCartItems();
-      const address = await getAddresses();
+    const cart = await getCartItems();
+    const address = await getAddresses();
 
-      setCartItems(cart || []);
-      setAddresses(address || []);
+    const validCartItems = (cart || []).filter(
+      (item) =>
+        item &&
+        item.product &&
+        item.product._id
+    );
 
-      if (address?.length > 0) {
-        setSelectedAddress(address[0]);
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
+    setCartItems(validCartItems);
+    setAddresses(address || []);
+
+    if (address?.length > 0) {
+      setSelectedAddress(address[0]);
     }
-  };
+  } catch (err) {
+    console.log("Order loading error:", err);
+    setCartItems([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const increaseQty = (id) => {
     setCartItems((prev) =>
@@ -195,9 +203,27 @@ function Order() {
     }
   };
 
-  if (loading) return <div className="order-loading">Loading...</div>;
+  if (loading) {
+  return <div className="order-loading">Loading...</div>;
+}
 
+if (cartItems.length === 0) {
   return (
+    <div className="order-empty">
+      <h2>Your cart is empty 🛒</h2>
+
+      <p>
+        Please add products to your cart before placing an order.
+      </p>
+
+      <button onClick={() => navigate("/cart")}>
+        Go to Cart
+      </button>
+    </div>
+  );
+}
+
+return (
     <div className="order-page">
       <div className="order-container">
 

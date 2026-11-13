@@ -15,11 +15,12 @@ const checkAuth = (req, res, next) => {
       return res.status(401).json({ message: "No Token" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const jwtSecret = process.env.JWT_SECRET || "fragranzia_secret_key";
+    const decoded = jwt.verify(token, jwtSecret);
 
-    // 🔥 IMPORTANT: your JWT uses { id: user._id }
+    // 🔥 IMPORTANT: your JWT uses { _id: user._id }
     req.userId = decoded._id;
-    console.log("AUTH HEADER:", req.headers.authorization);
+    req.userRole = decoded.role;
 
     next();
   } catch (error) {

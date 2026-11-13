@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../../../style/profile.css";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../../hooks/useAuth";
 
 import ProfileInfo from "./ProfileInfo";
 import AddressTab from "./AddressTab";
@@ -8,12 +9,19 @@ import OrdersTab from "./OrdersTab";
 
 function Profile() {
   const navigate = useNavigate();
+  const { logoutAuth } = useAuth();
 
   const [activeTab, setActiveTab] = useState("profile");
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    if (logoutAuth) {
+      logoutAuth();
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
+    }
     navigate("/login");
   };
 

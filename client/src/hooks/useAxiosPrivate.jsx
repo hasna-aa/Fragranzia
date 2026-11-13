@@ -1,63 +1,36 @@
 import { useEffect } from "react";
-// import Swal from "sweetalert2";
 import useAuth from "./useAuth";
 import { axiosPrivate } from "../axios";
-// import { genericError } from "../utils/genericError"; 
-
 
 const useAxiosPrivate = () => {
-    const { auth, setAuth } = useAuth();
+    const { auth } = useAuth();
 
     useEffect(() => {
-        axiosPrivate.interceptors.request.use(
-  (config) => {
+        const requestIntercept = axiosPrivate.interceptors.request.use(
+            (config) => {
+                const token = localStorage.getItem("token") || localStorage.getItem("accessToken") || auth?.token;
 
-    const token = localStorage.getItem("token");
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                }
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-        axiosPrivate.interceptors.response.use(
-            response => {
-                return response
+                return config;
             },
-           async error => {
-
-            // genericError(error)
-
-                // const prevRequest = error?.config;
-                // if (error?.response?.status === 403 && !prevRequest?.sent) {
-                //     prevRequest.sent = true;
-                //     return axiosPrivate(prevRequest);
-                // }
-                // if (error?.response?.status === 401) {
-                //     Swal.fire("Unauthorized", "Please verify the credentials", "error")
-                // }
-                // if (error?.response?.status === 404 && error.response.config.method === "post") {
-                //     console.log()
-                //     Swal.fire("404", "Page not found", "error")
-                // }
-
-                // if (error.response.status === 401) {
-                //     const response = await axiosInstance("/refresh-token");
-                //     logcalStorage.setItem("accessToken", response.data.accessToken);
-                //     // window.location.reload();
-                //     // localStorage.clear()
-                //     // window.location.href = "/"
-                // }
-
-                return Promise.reject(error)
-            }
+            (error) => Promise.reject(error)
         );
-    }, [auth])
 
-    return axiosPrivate
-}
+        const responseIntercept = axiosPrivate.interceptors.response.use(
+            (response) => response,
+            (error) => Promise.reject(error)
+        );
+
+        return () => {
+            axiosPrivate.interceptors.request.eject(requestIntercept);
+            axiosPrivate.interceptors.response.eject(responseIntercept);
+        };
+    }, [auth]);
+
+    return axiosPrivate;
+};
 
 export default useAxiosPrivate;

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import "../../style/signup.css";
-import axios from "axios";
+import AuthService from "../../services/user-api-service/AuthService";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { register } = AuthService();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -14,105 +16,135 @@ const Signup = () => {
     confirmPassword: "",
   });
 
+  const [agreeTerms, setAgreeTerms] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [formErr, setFormErr] = useState({
-    name: false,
-    email: false,
-    password: false,
-    confirmPassword: false,
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
+  const validateField = (name, value, currentFormData = formData) => {
+    let error = "";
+    if (name === "name") {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        error = "Name is required";
+      } else if (trimmed.length < 2) {
+        error = "Name must be at least 2 characters long";
+      }
+    } else if (name === "email") {
+      const emailTrimmed = value.trim();
+      if (!emailTrimmed) {
+        error = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+        error = "Please enter a valid email address";
+      }
+    } else if (name === "password") {
+      if (!value) {
+        error = "Password is required";
+      } else if (value.length < 6) {
+        error = "Password must be at least 6 characters long";
+      }
+    } else if (name === "confirmPassword") {
+      if (!value) {
+        error = "Please confirm your password";
+      } else if (value !== currentFormData.password) {
+        error = "Passwords do not match";
+      }
+    }
+    return error;
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      if (name === "password" && prev.confirmPassword) {
+        const confirmErr = updated.password !== updated.confirmPassword ? "Passwords do not match" : "";
+        setFormErr((prevErr) => ({ ...prevErr, confirmPassword: confirmErr }));
+      }
+      return updated;
     });
 
-    setFormErr({
-      ...formErr,
-      [e.target.name]: false,
-    });
+    if (formErr[name]) {
+      setFormErr((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
   };
 
   const onHandleBlur = (e) => {
     const { name, value } = e.target;
-
-    setFormErr({
-      ...formErr,
-      [name]: value.trim() === "",
-    });
+    const error = validateField(name, value, formData);
+    setFormErr((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
   };
 
   const onHandleSubmit = async (e) => {
     e.preventDefault();
 
-    let errors = {
-      name: false,
-      email: false,
-      password: false,
-      confirmPassword: false,
+    const nameErr = validateField("name", formData.name);
+    const emailErr = validateField("email", formData.email);
+    const passErr = validateField("password", formData.password);
+    const confirmErr = validateField("confirmPassword", formData.confirmPassword);
+
+    const errors = {
+      name: nameErr,
+      email: emailErr,
+      password: passErr,
+      confirmPassword: confirmErr,
     };
-
-    let valid = true;
-
-    if (!formData.name.trim()) {
-      errors.name = true;
-      valid = false;
-    }
-
-    if (
-      !formData.email.trim() ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-    ) {
-      errors.email = true;
-      valid = false;
-    }
-
-    if (!formData.password.trim()) {
-      errors.password = true;
-      valid = false;
-    }
-
-    if (
-      !formData.confirmPassword.trim() ||
-      formData.password !== formData.confirmPassword
-    ) {
-      errors.confirmPassword = true;
-      valid = false;
-    }
 
     setFormErr(errors);
 
-    if (!valid) return;
+    if (nameErr || emailErr || passErr || confirmErr) {
+      toast.error(nameErr || emailErr || passErr || confirmErr || "Please fill all required fields");
+      return;
+    }
+
+    if (!agreeTerms) {
+      toast.error("Please agree to the Terms & Conditions");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/users/register",
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }
-      );
+      const res = await register({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+      });
 
-      console.log("REGISTER SUCCESS:", res.data);
-
-      toast.success(res.data.message || "Registered Successfully");
-
+      console.log("REGISTER SUCCESS:", res);
+      toast.success(res.message || "Registered successfully! Please login.");
       navigate("/login");
     } catch (error) {
-      console.log("REGISTER ERROR:", error);
-      console.log("SERVER RESPONSE:", error.response?.data);
-
-      toast.error(
-        error.response?.data?.message || "Registration Failed"
-      );
+      console.error("REGISTER ERROR:", error);
+      let errorMsg = "Registration failed. Please try again.";
+      if (error.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      } else if (error.request) {
+        errorMsg = "Cannot reach server. Make sure backend is running on port 5000.";
+      }
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="main">
-      <div className="text">
-        <div className="text1">
+    <div className="main-signup">
+      <div className="text-signup">
+        <div className="text1-signup">
           <h1>Let's Get Started!</h1>
           <h4>
             Create your account and unlock the
@@ -122,14 +154,14 @@ const Signup = () => {
         </div>
       </div>
 
-      <div className="sign">
-        <div className="logo-text">
-          <button className="google-btn" type="button">
+      <div className="sign-signup">
+        <div className="logo-text-signup">
+          <button className="google-btn-signup" type="button">
             <img src="/googlelogo.png" alt="Google" />
             <span>Google</span>
           </button>
 
-          <button className="google-btn" type="button">
+          <button className="google-btn-signup" type="button">
             <img
               src="/download-removebg-preview.png"
               alt="Facebook"
@@ -138,18 +170,17 @@ const Signup = () => {
           </button>
         </div>
 
-        <div className="line">
-          <div className="hr-line"></div>
-
-          <div className="line-text">
+        <div className="line-signup">
+          <div className="hr-line-signup"></div>
+          <div className="line-text-signup">
             <p>or sign up with email</p>
           </div>
-
-          <div className="hr-line"></div>
+          <div className="hr-line-signup"></div>
         </div>
 
-        <form onSubmit={onHandleSubmit}>
-          <div className="form-group">
+        <form onSubmit={onHandleSubmit} noValidate>
+          <div className="form-group-signup">
+            <FaUser className="input-icon" />
             <input
               type="text"
               name="name"
@@ -157,13 +188,13 @@ const Signup = () => {
               value={formData.name}
               onChange={handleChange}
               onBlur={onHandleBlur}
+              autoComplete="name"
             />
-            <p className="error">
-              {formErr.name && "Please enter your name"}
-            </p>
+            {formErr.name && <p className="error-signup">{formErr.name}</p>}
           </div>
 
-          <div className="form-group">
+          <div className="form-group-signup">
+            <FaEnvelope className="input-icon" />
             <input
               type="email"
               name="email"
@@ -171,54 +202,79 @@ const Signup = () => {
               value={formData.email}
               onChange={handleChange}
               onBlur={onHandleBlur}
+              autoComplete="email"
             />
-            <p className="error">
-              {formErr.email && "Enter a valid email"}
-            </p>
+            {formErr.email && <p className="error-signup">{formErr.email}</p>}
           </div>
 
-          <div className="form-group">
+          <div className="form-group-signup">
+            <FaLock className="input-icon" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
-              placeholder="Enter password"
+              placeholder="Enter password (min 6 characters)"
               value={formData.password}
               onChange={handleChange}
               onBlur={onHandleBlur}
+              autoComplete="new-password"
             />
-            <p className="error">
-              {formErr.password && "Enter password"}
-            </p>
+            <button
+              type="button"
+              className="pwd-toggle-btn"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+            {formErr.password && (
+              <p className="error-signup">{formErr.password}</p>
+            )}
           </div>
 
-          <div className="form-group">
+          <div className="form-group-signup">
+            <FaLock className="input-icon" />
             <input
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
               placeholder="Confirm password"
               value={formData.confirmPassword}
               onChange={handleChange}
               onBlur={onHandleBlur}
+              autoComplete="new-password"
             />
-            <p className="error">
-              {formErr.confirmPassword &&
-                "Passwords do not match"}
-            </p>
+            <button
+              type="button"
+              className="pwd-toggle-btn"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+            {formErr.confirmPassword && (
+              <p className="error-signup">{formErr.confirmPassword}</p>
+            )}
           </div>
 
-          <div className="term">
-            <input type="checkbox" required />
-            <label>Agree with Terms & Conditions</label>
-          </div>
+          <label className="term-signup">
+            <input
+              type="checkbox"
+              checked={agreeTerms}
+              onChange={(e) => setAgreeTerms(e.target.checked)}
+            />
+            <span>Agree with Terms & Conditions</span>
+          </label>
 
-          <button type="submit" className="signup-btn">
-            Sign Up
+          <button
+            type="submit"
+            className="signup-btn-signup"
+            disabled={loading}
+          >
+            {loading ? "Creating account..." : "Sign Up"}
           </button>
 
-          <div className="signin">
+          <div className="signin-signup">
             <p>
-              Already have an account?{" "}
-              <Link to="/login">Sign In</Link>
+              Already have an account? <Link to="/login">Sign In</Link>
             </p>
           </div>
         </form>

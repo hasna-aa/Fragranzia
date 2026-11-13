@@ -68,22 +68,23 @@ function OrdersTab() {
 
 <img
   src={
-    item.product?.image
-      ? getImageUrl(item.product.image)
+    item.product?.images?.[0]
+      ? getImageUrl(item.product.images[0])
       : "/no-image.png"
   }
   alt={item.product?.title || "Product"}
   className="order-item-image"
   onError={(e) => {
-    e.target.src = "/no-image.png";
+    e.currentTarget.src = "/no-image.png";
   }}
 />
+
                     <div className="order-item-info">
                       <h5>{item.product?.title || "Product"}</h5>
                       <p>Quantity: {item.quantity}</p>
                       <p>
                         Price: ₹
-                        {(item.product?.price || 0) * item.quantity}
+                        {(item.product?.salePrice || item.product?.price || 0) * item.quantity}
                       </p>
                     </div>
 
@@ -164,21 +165,27 @@ function OrdersTab() {
 
 <img
   src={
-    item.product?.image
-      ? getImageUrl(item.product.image)
+    item.product?.images?.[0]
+      ? getImageUrl(item.product.images[0])
       : "/no-image.png"
   }
   alt={item.product?.title || "Product"}
   className="modal-item-image"
   onError={(e) => {
-    e.target.src = "/no-image.png";
+    e.currentTarget.src = "/no-image.png";
   }}
 />
+  {/* alt={item.product?.title || "Product"}
+  className="modal-item-image"
+  onError={(e) => {
+    e.target.src = "/no-image.png";
+  }}
+/> */}
                   <div className="modal-item-info">
                     <h5>{item.product?.title || "Product"}</h5>
                     <p>Qty: {item.quantity}</p>
                     <p>
-                      ₹{(item.product?.price || 0) * item.quantity}
+                      ₹{(item.product?.salePrice || item.product?.price || 0) * item.quantity}
                     </p>
                   </div>
 

@@ -66,6 +66,14 @@ app.get("/", (req, res) => {
   res.send("Fragranzia Server Running");
 });
 
+// ================= GLOBAL ERROR HANDLER =================
+app.use((err, req, res, next) => {
+  console.error("SERVER ERROR:", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+  });
+});
+
 // ================= START SERVER =================
 const PORT = process.env.PORT || 5000;
 
